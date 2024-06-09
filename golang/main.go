@@ -25,48 +25,53 @@ type Response struct {
 	Servers []Server `json:"servers"`
 }
 
-func fetch() (int, time.Time, error) {
+func fetch() (int, time.Time, []byte, error) {
 	t := time.Now()
 	resp, err := http.Get("https://servers.realitymod.com/api/ServerInfo")
 	if err != nil {
-		return 0, t, err
+		return 0, t, nil, err
 	}
 	defer resp.Body.Close()
 	bytes, err2 := io.ReadAll(resp.Body)
 	if err2 != nil {
-		return 0, t, err2
+		return 0, t, nil, err2
 	}
 	var response Response
 	err3 := json.Unmarshal(bytes, &response)
 	if err3 != nil {
 		fmt.Println(string(bytes))
-		return 0, t, err3
+		return 0, t, bytes, err3
 	}
 	totalPlayers := 0
 	for _, s := range response.Servers {
 		numplayers, err4 := strconv.Atoi(s.Properties.Numplayers)
 		if err4 != nil {
-			return 0, t, err4
+			return 0, t, bytes, err4
 		}
 		totalPlayers += numplayers
 	}
-	return totalPlayers, t, nil
+	return totalPlayers, t, bytes, nil
 }
 
 func main() {
 	var totalPlayers int
 	var t time.Time
+	var bytes []byte
 	var err error = nil
 
 	for i := range attempts {
 		fmt.Printf("Attempt: %d\n", (i + 1))
-		totalPlayers, t, err = fetch()
+		totalPlayers, t, bytes, err = fetch()
 
 		if err != nil {
 			if i == attempts-1 {
 				fmt.Printf("%d failed attempts... exiting without success\n", attempts)
+				if bytes != nil {
+					fmt.Println("Decoded bytes:")
+					fmt.Println(string(bytes))
+				}
 				if e, ok := err.(*json.SyntaxError); ok {
-					fmt.Println("Syntax error")
+					fmt.Printf("Syntax error at offset %d\n", e.Offset)
 					panic(e)
 				} else {
 					panic(err)
