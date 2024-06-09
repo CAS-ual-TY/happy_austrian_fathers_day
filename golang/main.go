@@ -72,10 +72,17 @@ func main() {
 				}
 				if e, ok := err.(*json.SyntaxError); ok {
 					fmt.Printf("Syntax error at offset %d\n", e.Offset)
-					panic(e)
-				} else {
-					panic(err)
+					if bytes != nil {
+						fmt.Println("If CAS_ual_TY isnt completely retarded, this should be somewhere here:")
+						off := int(e.Offset)
+						minOff := max(0, off-off%8-8*3)
+						maxOff := min(len(bytes), off-off%8+8*4)
+						fmt.Printf("[%d, %d]\n", minOff, maxOff)
+						fmt.Println(string(bytes[minOff:maxOff]))
+					}
 				}
+
+				panic(err)
 			}
 		} else {
 			fmt.Println("... success!")
