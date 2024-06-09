@@ -97,7 +97,7 @@ func main() {
 
 	defer f.Close()
 
-	newline := fmt.Sprintf("%s,%d\n", t.Round(time.Second).UTC(), totalPlayers)
+	newline := fmt.Sprintf("%s,%d\n", t.Round(time.Second).UTC().Format("2006-01-02 15:04:05"), totalPlayers)
 
 	if _, err = f.WriteString(newline); err != nil {
 		panic(err)
