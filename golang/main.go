@@ -11,7 +11,7 @@ import (
 )
 
 var filename = "./player_numbers.csv"
-var attempts = 1
+var attempts = 3
 
 type ServerProperties struct {
 	Numplayers string `json:"numplayers"`
@@ -60,7 +60,7 @@ func main() {
 	var err error = nil
 
 	for i := range attempts {
-		fmt.Printf("Attempt: %d\n", (i + 1))
+		fmt.Printf("Attempt %d\n", (i + 1))
 		totalPlayers, t, bytes, err = fetch()
 
 		if err != nil {
@@ -78,6 +78,7 @@ func main() {
 				}
 			}
 		} else {
+			fmt.Println("... success!")
 			break
 		}
 
