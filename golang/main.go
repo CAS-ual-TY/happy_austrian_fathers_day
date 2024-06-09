@@ -11,6 +11,7 @@ import (
 )
 
 var filename = "./player_numbers.csv"
+var attempts = 1
 
 type ServerProperties struct {
 	Numplayers string `json:"numplayers"`
@@ -38,6 +39,7 @@ func fetch() (int, time.Time, error) {
 	var response Response
 	err3 := json.Unmarshal(bytes, &response)
 	if err3 != nil {
+		fmt.Println(string(bytes))
 		return 0, t, err3
 	}
 	totalPlayers := 0
@@ -56,18 +58,25 @@ func main() {
 	var t time.Time
 	var err error = nil
 
-	for i := range 3 {
+	for i := range attempts {
 		fmt.Printf("Attempt: %d\n", (i + 1))
 		totalPlayers, t, err = fetch()
 
 		if err != nil {
-			if i == 3-1 {
-				fmt.Println("3 failed attempts... exiting without success")
-				panic(err)
-			} else {
-				time.Sleep(time.Second * 10)
+			if i == attempts-1 {
+				fmt.Printf("%d failed attempts... exiting without success\n", attempts)
+				if e, ok := err.(*json.SyntaxError); ok {
+					fmt.Println("Syntax error")
+					panic(e)
+				} else {
+					panic(err)
+				}
 			}
+		} else {
+			break
 		}
+
+		time.Sleep(time.Second * 31)
 	}
 
 	if err != nil {
