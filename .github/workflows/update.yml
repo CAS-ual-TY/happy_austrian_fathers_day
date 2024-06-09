@@ -1,0 +1,46 @@
+name: Update
+on:
+  schedule:
+    - cron: '01 * * * *'
+  workflow_dispatch
+
+permissions:
+  contents: write
+jobs:
+  update:
+    name: Update
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: data
+      - name: git config
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - name: prepare go
+        run: |
+          cd ./golang
+          go mod download
+      - name: run normal
+        run: |
+          cd ./golang
+          go run .
+      - name: cleanup go
+        run: cd ..
+      - name: git add
+        run: git add .
+      - name: git commit "Dispatched Update"
+        run: git commit -am "Dispatched Update"
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+      - name: git commit "Scheduled Update"
+        run: git commit -am "Scheduled Update"
+        if: ${{ github.event_name == 'schedule' }}
+      - name: git commit "Update"
+        run: git commit -am "Update"
+        if: ${{ (github.event_name != 'workflow_dispatch') && (github.event_name != 'schedule') }}
+      - name: git push
+        run: git push
