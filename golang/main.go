@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var filename = "./player_numbers.csv"
+var filename = "../player_numbers.csv"
 var attempts = 3
 
 type ServerProperties struct {
