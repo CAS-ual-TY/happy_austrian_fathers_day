@@ -1,7 +1,7 @@
 name: Update
 on:
   schedule:
-    - cron: '00,30 * * * *'
+    - cron: '00 * * * *'
   workflow_dispatch:
 
 permissions:
